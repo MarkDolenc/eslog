@@ -13,9 +13,9 @@ namespace eslog2_0.Models
         {
             string eslog = "";
 
-            double sumInvoiceLine = 0;
-            double sumTaxes = 0;
-            double sumInvoiceLinetax = 0;
+            decimal sumInvoiceLine = 0;
+            decimal sumTaxes = 0;
+            decimal sumInvoiceLinetax = 0;
 
             foreach(var item in data.invoiceItems)
             {
@@ -40,6 +40,9 @@ namespace eslog2_0.Models
                         new XElement("S_BGM",
                             new XElement("C_C002",
                                 new XElement("D_1001", data.invoice.invoiceType)
+                            ),
+                            new XElement("C_C106",
+                                new XElement("D_1004", data.invoice.invoiceNumber)
                             )
                         ),
                         new XElement("S_DTM",
@@ -241,6 +244,7 @@ namespace eslog2_0.Models
                             new XElement("S_PIA",
                                 new XElement("D_4347", "5"),
                                 new XElement("C_C212",
+                                    new XElement("D_7140", item.itemText),
                                     new XElement("D_7143", "SA")
                                 )
                             ),
@@ -297,7 +301,7 @@ namespace eslog2_0.Models
                                     ),
                                     new XElement("C_C243", 
                                         new XElement("D_5278", item.vatPercent),
-                                        new XElement("D_5305", item.vatType)    //VAT TYPE; standard, zero, exempt, reverse,... PAGE 128 of DOCUMENTATION
+                                        new XElement("D_5305", item.vatCategory)    //VAT TYPE; standard, zero, exempt, reverse,... PAGE 128 of DOCUMENTATION
                                     )
                                 ),
                                 new XElement("S_MOA",
@@ -313,11 +317,20 @@ namespace eslog2_0.Models
                             )
                         )
                     ),
+                        /*
+                         * END OF INVOICE ITEMS
+                         */
                     new XElement("G_SG50",
                         new XElement("S_MOA",
                             new XElement("C_C516",
                                 new XElement("D_5025", "79"),   //SUM OF AMOUNTS
                                 new XElement("D_5004", data.invoice.totalAmount )
+                            )
+                        ),
+                        new XElement("S_MOA",
+                            new XElement("C_C516",
+                                new XElement("D_5025", "389"),   //SUM OF AMOUNTS
+                                new XElement("D_5004", data.invoice.totalAmount)
                             )
                         ),
                         new XElement("S_MOA",
@@ -342,7 +355,25 @@ namespace eslog2_0.Models
                     new XElement("G_SG52",
                         new XElement("S_TAX",
                             new XElement("D_5283", "7"),
-                            new XElement("D_5305", "")  //INVOICE VAT TYPE
+                            new XElement("C_C241",
+                                new XElement("D_5153", "VAT")
+                            ),
+                            new XElement("C_C243",
+                                new XElement("D_5278", data.invoice.vatPercentage)
+                            ),
+                            new XElement("D_5305", "S")  //INVOICE VAT CATEGORY
+                        ),
+                        new XElement("S_MOA",
+                            new XElement("C_C516",
+                                new XElement("D_5025", "125"),
+                                new XElement("D_5004", data.invoice.totalAmount)
+                            )
+                        ),
+                        new XElement("S_MOA",
+                            new XElement("C_C516",
+                                new XElement("D_5025", "124"),
+                                new XElement("D_5004", data.invoice.vatAmount)
+                            )
                         )
                     )
                 ))

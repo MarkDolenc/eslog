@@ -15,7 +15,7 @@ namespace eslog2_0.Models
         public decimal vatAmount { get; set; } // amount of VAT
         public decimal discountPercent { get; set; }
         public decimal discountAmount { get; set; } 
-        public string vatCatergory { get; set; } //category code from UNTDID 5305; if extempted from vat, coded statement is mandatory in eslog (reference)
+        public string vatCategory { get; set; } //category code from UNTDID 5305; if extempted from vat, coded statement is mandatory in eslog (reference)
         public string vatType { get; set; } //Is it a standard VAT or EXT?
     }
 }

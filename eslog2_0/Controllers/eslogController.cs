@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using eslog2_0.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace eslog2_0.Controllers
 {
@@ -15,11 +16,21 @@ namespace eslog2_0.Controllers
 
         [HttpPost]
         [Route("create")]
-        public IActionResult createEslog(/*[FromBody] EslogData eslogData*/)
+        public IActionResult createEslog([FromBody] EslogData eslogData)
         {
-            EslogData eslogData = new EslogData();
 
-            return Ok(eslog.constructEslog(eslogData));
+            Console.WriteLine(JsonConvert.SerializeObject(eslogData));
+
+            Console.WriteLine("");
+            try
+            {
+                return Ok(eslog.constructEslog(eslogData));
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
         }
     }
 }
