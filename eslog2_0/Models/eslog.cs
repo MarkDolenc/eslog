@@ -24,6 +24,10 @@ namespace eslog2_0.Models
                 sumTaxes += item.vatAmount;
             }
 
+            var invoiceDate = data.invoice.invoiceDate.ToString("yyyy-MM-dd");
+            var dueDate = data.invoice.dueDate.ToString("yyyy-MM-dd");
+            var serviceDate = data.invoice.serviceDate.ToString("yyyy-MM-dd");
+
 
             XNamespace xmlns = "urn:eslog:2.00";
             XNamespace xmlnsxsi = XNamespace.Get("http://www.w3.org/2001/XMLSchema-instance");
@@ -56,19 +60,19 @@ namespace eslog2_0.Models
                             new XElement("S_DTM",
                                 new XElement("C_C507",
                                     new XElement("D_2005", "137"), //When the invoice was issued
-                                    new XElement("D_2380", data.invoice.invoiceDate)
+                                    new XElement("D_2380", invoiceDate)
                                 )
                             ),
                             new XElement("S_DTM",
                                 new XElement("C_C507",
                                     new XElement("D_2005", "35"),  //When the invoice service was realised
-                                    new XElement("D_2380", data.invoice.serviceDate)
+                                    new XElement("D_2380", serviceDate)
                                 )
                             ),
                             new XElement("S_DTM",  
                                 new XElement("C_C507",
                                     new XElement("D_2005", "432"),  //Date to which the invoice should be paid
-                                    new XElement("D_2380", data.invoice.dueDate)
+                                    new XElement("D_2380", dueDate)
                                 )
                             ),
                             new XElement("S_FTX",
@@ -222,26 +226,34 @@ namespace eslog2_0.Models
                                     )
                                 )
                             ),
+                            //new XElement("G_SG8",
+                            //    new XElement("S_PAT",   //PAYMENT TERMS BASIS (PAGE 96)
+                            //        new XElement("D_4272", "1")
+                            //    )
+                            //),
                             new XElement("G_SG8",
                                 new XElement("S_PAT",   //PAYMENT TERMS BASIS (PAGE 96)
                                     new XElement("D_4272", "1")
-                                )
-                            ),
-                            new XElement("G_SG8",
+                                ),
                                 new XElement("S_DTM",   //PAYMENT DUE DATE
                                     new XElement("C_C507",
                                         new XElement("D_2005", "13"),
-                                        new XElement("D_2380", data.invoice.dueDate)
+                                        new XElement("D_2380", dueDate)
                                     )
-                                )
-                            ),
-                            new XElement("G_SG8",
+                                ),
                                 new XElement("S_PAI",
                                     new XElement("C_C534",
                                         new XElement("D_4461", "42")
                                     )
                                 )
                             ),
+                            //new XElement("G_SG8",
+                            //    new XElement("S_PAI",
+                            //        new XElement("C_C534",
+                            //            new XElement("D_4461", "42")
+                            //        )
+                            //    )
+                            //),
                             /*
                              * INVOICE ITEMS
                              */
@@ -309,9 +321,9 @@ namespace eslog2_0.Models
                                             new XElement("D_5153", "VAT")
                                         ),
                                         new XElement("C_C243", 
-                                            new XElement("D_5278", item.vatPercent),
-                                            new XElement("D_5305", item.vatCategory)    //VAT TYPE; standard, zero, exempt, reverse,... PAGE 128 of DOCUMENTATION
-                                        )
+                                            new XElement("D_5278", item.vatPercent)
+                                        ),
+                                        new XElement("D_5305", item.vatCategory)    //VAT TYPE; standard, zero, exempt, reverse,... PAGE 128 of DOCUMENTATION
                                     ),
                                     new XElement("S_MOA",
                                         new XElement("C_C516",
