@@ -76,6 +76,12 @@ namespace eslog2_0.Models
                                 )
                             ),
                             new XElement("S_FTX",
+                                new XElement("D_4451", "AAB"),
+                                new XElement("C_C108",
+                                    new XElement("D_4440", "Has to be paid")
+                                )
+                            ),
+                            new XElement("S_FTX",
                                 new XElement("D_4451", "DOC"),
                                 new XElement("C_C107",
                                     new XElement("D_4441", "P1")
@@ -138,6 +144,14 @@ namespace eslog2_0.Models
                                             new XElement("D_1154", data.receiver.taxNumber)
                                         )
                                     )
+                                ),
+                                new XElement("G_SG3",
+                                    new XElement("S_RFF",
+                                        new XElement("C_C506",
+                                            new XElement("D_1153", "AHP"),
+                                            new XElement("D_1154", data.receiver.taxNumber)
+                                        )
+                                    )
                                 )
                             ),
                             new XElement("G_SG2",   //PAGE 76 of eslog documentation SELLER INFORMATION --> SENDER
@@ -175,6 +189,14 @@ namespace eslog2_0.Models
                                         new XElement("C_C506",
                                             new XElement("D_1153", "VA"),
                                             new XElement("D_1154", data.sender.taxNumber)
+                                        )
+                                    )
+                                ),
+                                new XElement("G_SG3",
+                                    new XElement("S_RFF",
+                                        new XElement("C_C506",
+                                            new XElement("D_1153", "AHP"),
+                                            new XElement("D_1154", data.receiver.taxNumber)
                                         )
                                     )
                                 )
