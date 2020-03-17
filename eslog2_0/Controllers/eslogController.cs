@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Eslog_1_6;
+using System.Xml.Linq;
+using System.Net.Http;
+using System.Xml;
 
 namespace eslog2_0.Controllers
 {
@@ -34,15 +37,22 @@ namespace eslog2_0.Controllers
         [Route("convert")]
         public IActionResult convertFrom16eSlog([FromForm] string eslogFile)
         {
-
-
+            
             Eslog_1_6.Parse parse = new Eslog_1_6.Parse();
             var doc = parse.DeserializeEslog16(eslogFile);
 
             Mapper mapper = new Mapper();
-            var eslog = mapper.mapEslog(doc);
+            try
+            {
+                var eslogData = mapper.mapEslog(doc);
 
-            return Ok(eslog);
+                return Ok(eslog.constructEslog(eslogData));
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
         }
     }
 }

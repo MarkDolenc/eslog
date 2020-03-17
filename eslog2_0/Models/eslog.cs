@@ -24,6 +24,11 @@ namespace eslog2_0.Models
                 sumTaxes += item.vatAmount;
             }
 
+            data.invoice.paymentAmount = sumInvoiceLinetax;
+            data.invoice.totalAmount = sumInvoiceLine;
+            data.invoice.vatAmount = sumTaxes;
+            data.invoice.vatPercentage = (decimal)22.0;
+
             var invoiceDate = data.invoice.invoiceDate.ToString("yyyy-MM-dd");
             var dueDate = data.invoice.dueDate.ToString("yyyy-MM-dd");
             var serviceDate = data.invoice.serviceDate.ToString("yyyy-MM-dd");
@@ -272,10 +277,10 @@ namespace eslog2_0.Models
                             /*
                              * INVOICE ITEMS
                              */
-                            data.invoiceItems.Select(item =>
+                            data.invoiceItems.Select((item, index) =>
                             new XElement("G_SG26",
                                 new XElement("S_LIN",
-                                    new XElement("D_1082", "1")
+                                    new XElement("D_1082", index + 1)
                                 ),
                                 new XElement("S_PIA",
                                     new XElement("D_4347", "5"),
