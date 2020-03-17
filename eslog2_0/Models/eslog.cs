@@ -269,13 +269,6 @@ namespace eslog2_0.Models
                                     )
                                 )
                             ),
-                            //new XElement("G_SG8",
-                            //    new XElement("S_PAI",
-                            //        new XElement("C_C534",
-                            //            new XElement("D_4461", "42")
-                            //        )
-                            //    )
-                            //),
                             /*
                              * INVOICE ITEMS
                              */
@@ -433,6 +426,11 @@ namespace eslog2_0.Models
                         )
                     ))
             );
+
+            foreach(XElement el in document.Descendants())
+            {
+                el.Name = xmlns + el.Name.LocalName;
+            }
 
             eslog = document.ToString();
 
