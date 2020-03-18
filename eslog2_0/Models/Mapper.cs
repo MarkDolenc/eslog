@@ -15,7 +15,7 @@ namespace eslog2_0.Models
         {
             decimal retVal = decimal.Zero;
 
-            if (decimal.TryParse(value, NumberStyles.Currency, new CultureInfo("sl-SI"), out retVal))
+            if (decimal.TryParse(value, NumberStyles.Currency, CultureInfo.InvariantCulture, out retVal))
                 return retVal;
 
 
@@ -38,10 +38,6 @@ namespace eslog2_0.Models
             eslogData.invoice = new Invoice();
             eslogData.referenceDocuments = new List<ReferenceDocument>();
             eslogData.invoiceItems = new List<InvoiceItem>();
-
-            var style = NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands;
-            var provider = new CultureInfo("sl-SI");
-
 
             try
             {

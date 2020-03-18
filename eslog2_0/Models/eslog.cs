@@ -29,6 +29,30 @@ namespace eslog2_0.Models
             data.invoice.vatAmount = sumTaxes;
             data.invoice.vatPercentage = (decimal)22.0;
 
+            switch (data.invoice.paymentTerms)
+            {
+                case "0":
+                    data.invoice.paymentTerms = "Račun je potrebno plačati";
+                    break;
+
+                case "1":
+                    data.invoice.paymentTerms = "Račun bo plačan preko direktne obremenitve in ga ni potrebno plačati";
+                    break;
+
+                case "2":
+                    data.invoice.paymentTerms = "Račun je bil že plačan";
+                    break;
+
+                case "3":
+                    data.invoice.paymentTerms = "Drugo – ni možnosti plačila";
+                    break;
+
+                default:
+                    data.invoice.paymentTerms = "Račun je potrebno plačati";
+                    break;
+
+            }
+
             var invoiceDate = data.invoice.invoiceDate.ToString("yyyy-MM-dd");
             var dueDate = data.invoice.dueDate.ToString("yyyy-MM-dd");
             var serviceDate = data.invoice.serviceDate.ToString("yyyy-MM-dd");
@@ -76,14 +100,20 @@ namespace eslog2_0.Models
                             ),
                             new XElement("S_DTM",  
                                 new XElement("C_C507",
-                                    new XElement("D_2005", "432"),  //Date to which the invoice should be paid
+                                    new XElement("D_2005", "131"),  //Value added tax point date
+                                    new XElement("D_2380", dueDate)
+                                )
+                            ),
+                             new XElement("S_DTM",
+                                new XElement("C_C507",
+                                    new XElement("D_2005", "432"),  //Payment due date
                                     new XElement("D_2380", dueDate)
                                 )
                             ),
                             new XElement("S_FTX",
                                 new XElement("D_4451", "AAB"),
                                 new XElement("C_C108",
-                                    new XElement("D_4440", "Has to be paid")
+                                    new XElement("D_4440", data.invoice.paymentTerms) //PAYMENT TERMS
                                 )
                             ),
                             new XElement("S_FTX",
@@ -175,7 +205,8 @@ namespace eslog2_0.Models
                                 new XElement("S_FII",   //FINANCIAL INSTITUTION INFORMATION
                                     new XElement("D_3035", "RB"),
                                     new XElement("C_C078",
-                                        new XElement("D_3194", data.sender.iban)
+                                        new XElement("D_3194", data.sender.iban),
+                                        new XElement("D_3192", data.sender.name)
                                     ),
                                     new XElement("C_C088",
                                         new XElement("D_3433", data.sender.bankBic)
@@ -201,7 +232,7 @@ namespace eslog2_0.Models
                                     new XElement("S_RFF",
                                         new XElement("C_C506",
                                             new XElement("D_1153", "AHP"),
-                                            new XElement("D_1154", data.receiver.taxNumber)
+                                            new XElement("D_1154", data.sender.taxNumber)
                                         )
                                     )
                                 )
@@ -344,17 +375,23 @@ namespace eslog2_0.Models
                                             new XElement("D_5278", item.vatPercent)
                                         ),
                                         new XElement("D_5305", item.vatCategory)    //VAT TYPE; standard, zero, exempt, reverse,... PAGE 128 of DOCUMENTATION
-                                    ),
+                                    )
+                                ),
+                                new XElement("G_SG34",
                                     new XElement("S_MOA",
                                         new XElement("C_C516",
-                                            new XElement("D_5025", "125"),  //ITEM PRICE 
-                                            new XElement("D_5004", item.price * item.quantity - item.discountAmount)
+                                            new XElement("D_5025", "125"),
+                                            new XElement("D5004", item.price * item.quantity - item.discountAmount)
                                         )
-                                    ),
+                                    )
+                                ),
+                                new XElement("G_SG34",
                                     new XElement("S_MOA",
                                         new XElement("C_C516",
-                                            new XElement("D_5025", "124"),  //ITEM VAT
-                                            new XElement("D_5004", item.vatAmount)))
+                                            new XElement("D_5025", "124"),
+                                            new XElement("D5004", item.vatAmount)
+                                        )
+                                    )
                                 )
                             )
                         ),
