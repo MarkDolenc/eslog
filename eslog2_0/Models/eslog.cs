@@ -20,14 +20,9 @@ namespace eslog2_0.Models
             foreach(var item in data.invoiceItems)
             {
                 sumInvoiceLinetax += item.totalPrice;
-                sumInvoiceLine += item.price;
+                sumInvoiceLine += item.price * item.quantity;
                 sumTaxes += item.vatAmount;
             }
-
-            data.invoice.paymentAmount = sumInvoiceLinetax;
-            data.invoice.totalAmount = sumInvoiceLine;
-            data.invoice.vatAmount = sumTaxes;
-            data.invoice.vatPercentage = (decimal)22.0;
 
             switch (data.invoice.paymentTerms)
             {
@@ -66,7 +61,7 @@ namespace eslog2_0.Models
 
             XDocument document = new XDocument(
                 new XElement("Invoice",
-                    new XAttribute(XNamespace.Xmlns + "xsi", xmlnsxsi.NamespaceName), 
+                    new XAttribute(XNamespace.Xmlns + "xsi", xmlnsxsi.NamespaceName),
                     new XAttribute(xmlnsxsi + "noNamespaceSchemaLocation", nonamexsi),
                         new XElement("M_INVOIC", new XAttribute("Id", "data"),
                             new XElement("S_UNH",
@@ -98,7 +93,7 @@ namespace eslog2_0.Models
                                     new XElement("D_2380", serviceDate)
                                 )
                             ),
-                            new XElement("S_DTM",  
+                            new XElement("S_DTM",
                                 new XElement("C_C507",
                                     new XElement("D_2005", "131"),  //Value added tax point date
                                     new XElement("D_2380", dueDate)
@@ -143,10 +138,10 @@ namespace eslog2_0.Models
                                 )
                             ),
                             new XElement("G_SG2",   //PAGE 59 of eslog 2.0 part 2! //BUYER INFORMATION --> RECEIVER
-                                new XElement("S_NAD", 
-                                    new XElement("D_3035", "BY"), 
+                                new XElement("S_NAD",
+                                    new XElement("D_3035", "BY"),
                                     new XElement("C_C080",
-                                        new XElement("D_3036", data.receiver.name)
+                                        new XElement("D_3036", data.receiver.longname)
                                     ),
                                     new XElement("C_C059",
                                         new XElement("D_3042", data.receiver.address)
@@ -158,14 +153,15 @@ namespace eslog2_0.Models
                                 new XElement("S_FII",
                                     new XElement("D_3035", "BB"),   //BUYER BANK IDENTIFICATION
                                     new XElement("C_C078",
-                                        new XElement("D_3194", data.receiver.iban)
+                                        new XElement("D_3194", data.receiver.iban),
+                                        new XElement("D_3192", data.receiver.longname)
                                     ),
                                     new XElement("C_C088",
                                         new XElement("D_3433", data.receiver.bankBic)
                                     )
                                 ),
-                                new XElement("G_SG3", 
-                                    new XElement("S_RFF", 
+                                new XElement("G_SG3",
+                                    new XElement("S_RFF",
                                         new XElement("C_C506",
                                             new XElement("D_1153", "0199"),
                                             new XElement("D_1154", data.receiver.registrationNumber)
@@ -193,7 +189,7 @@ namespace eslog2_0.Models
                                 new XElement("S_NAD",
                                     new XElement("D_3035", "SE"),
                                     new XElement("C_C080",
-                                        new XElement("D_3036", data.sender.name)
+                                        new XElement("D_3036", data.sender.longname)
                                     ),
                                     new XElement("C_C059",
                                         new XElement("D_3042", data.sender.address)
@@ -206,7 +202,7 @@ namespace eslog2_0.Models
                                     new XElement("D_3035", "RB"),
                                     new XElement("C_C078",
                                         new XElement("D_3194", data.sender.iban),
-                                        new XElement("D_3192", data.sender.name)
+                                        new XElement("D_3192", data.sender.longname)
                                     ),
                                     new XElement("C_C088",
                                         new XElement("D_3433", data.sender.bankBic)
@@ -241,7 +237,7 @@ namespace eslog2_0.Models
                                 new XElement("S_NAD",
                                     new XElement("D_3035", "DP"),
                                     new XElement("C_C080",
-                                        new XElement("D_3036", data.receiver.name)
+                                        new XElement("D_3036", data.receiver.longname)
                                     ),
                                     new XElement("C_C059",
                                         new XElement("D_3042", data.receiver.address)
@@ -291,7 +287,7 @@ namespace eslog2_0.Models
                             //),
                             new XElement("G_SG8",
                                 new XElement("S_PAT",   //PAYMENT TERMS BASIS (PAGE 96)
-                                    new XElement("D_4272", "1")
+                                    new XElement("D_4279", "1")
                                 ),
                                 new XElement("S_DTM",   //PAYMENT DUE DATE
                                     new XElement("C_C507",
@@ -337,7 +333,7 @@ namespace eslog2_0.Models
                                     new XElement("S_MOA",
                                         new XElement("C_C516",
                                             new XElement("D_5025", "203"),  //LINE ITEM AMOUNT
-                                            new XElement("D_5004", item.price)
+                                            new XElement("D_5004", item.price * item.quantity - item.discountAmount)
                                         )
                                     )
                                 ),
@@ -345,7 +341,7 @@ namespace eslog2_0.Models
                                     new XElement("S_MOA",
                                         new XElement("C_C516",
                                             new XElement("D_5025", "38"),   //INVOICE ITEM AMOUNT
-                                            new XElement("D_5004", item.price + item.vatAmount)
+                                            new XElement("D_5004", item.price * item.quantity + item.vatAmount)
                                         )
                                     )
                                 ),
@@ -371,7 +367,7 @@ namespace eslog2_0.Models
                                         new XElement("C_C241",
                                             new XElement("D_5153", "VAT")
                                         ),
-                                        new XElement("C_C243", 
+                                        new XElement("C_C243",
                                             new XElement("D_5278", item.vatPercent)
                                         ),
                                         new XElement("D_5305", item.vatCategory)    //VAT TYPE; standard, zero, exempt, reverse,... PAGE 128 of DOCUMENTATION
@@ -396,9 +392,9 @@ namespace eslog2_0.Models
                             )
                         ),
 
-                            /*
-                             * END OF INVOICE ITEMS
-                             */
+                        /*
+                         * END OF INVOICE ITEMS
+                         */
                         new XElement("S_UNS",
                             new XElement("D_0081", "D")
                         ),
@@ -406,7 +402,7 @@ namespace eslog2_0.Models
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "79"),   //SUM OF AMOUNTS
-                                    new XElement("D_5004", data.invoice.totalAmount )
+                                    new XElement("D_5004", sumInvoiceLine)
                                 )
                             )
                         ),
@@ -414,7 +410,7 @@ namespace eslog2_0.Models
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "389"),   //SUM OF AMOUNTS
-                                    new XElement("D_5004", data.invoice.totalAmount)
+                                    new XElement("D_5004", sumInvoiceLine)
                                 )
                             )
                         ),
@@ -422,7 +418,7 @@ namespace eslog2_0.Models
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "388"),
-                                    new XElement("D_5004", data.invoice.totalAmount + data.invoice.vatAmount)
+                                    new XElement("D_5004", sumInvoiceLine + sumTaxes)
                                 )
                             )
                         ),
@@ -430,7 +426,7 @@ namespace eslog2_0.Models
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "9"),    //TOTAL AMOUNT TO PAY
-                                    new XElement("D_5004", data.invoice.totalAmount + data.invoice.vatAmount)
+                                    new XElement("D_5004", sumInvoiceLine + sumTaxes)
                                 )
                             )
                         ),
@@ -438,10 +434,12 @@ namespace eslog2_0.Models
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "176"), //SUM OF ALL TAXES
-                                    new XElement("D_5004", data.invoice.vatAmount)
+                                    new XElement("D_5004", sumTaxes)
                                 )
                             )
                         ),
+                        //THIS HERE NEEDS WORK
+                        data.invoiceItems.Where(item => item.vatPercent == 22).Count() > 0 ?
                         new XElement("G_SG52",
                             new XElement("S_TAX",
                                 new XElement("D_5283", "7"),
@@ -449,23 +447,73 @@ namespace eslog2_0.Models
                                     new XElement("D_5153", "VAT")
                                 ),
                                 new XElement("C_C243",
-                                    new XElement("D_5278", data.invoice.vatPercentage)
+                                    new XElement("D_5278", 22.0)
                                 ),
                                 new XElement("D_5305", "S")  //INVOICE VAT CATEGORY
                             ),
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "125"),
-                                    new XElement("D_5004", data.invoice.totalAmount)
+                                    new XElement("D_5004", data.invoiceItems.Where(item => item.vatPercent == 22).Sum(i => i.price * i.quantity - i.discountAmount))
                                 )
                             ),
                             new XElement("S_MOA",
                                 new XElement("C_C516",
                                     new XElement("D_5025", "124"),
-                                    new XElement("D_5004", data.invoice.vatAmount)
+                                    new XElement("D_5004", data.invoiceItems.Where(item => item.vatPercent == 22).Sum(i => i.vatAmount))
                                 )
                             )
-                        )
+                        ): null,
+                        data.invoiceItems.Where(item => item.vatPercent == (decimal)9.5).Count() > 0 ?
+                        new XElement("G_SG52",
+                            new XElement("S_TAX",
+                                new XElement("D_5283", "7"),
+                                new XElement("C_C241",
+                                    new XElement("D_5153", "VAT")
+                                ),
+                                new XElement("C_C243",
+                                    new XElement("D_5278", 9.50)
+                                ),
+                                new XElement("D_5305", "S")  //INVOICE VAT CATEGORY
+                            ),
+                            new XElement("S_MOA",
+                                new XElement("C_C516",
+                                    new XElement("D_5025", "125"),
+                                    new XElement("D_5004", data.invoiceItems.Where(item => item.vatPercent == (decimal)9.5).Sum(i => i.price * i.quantity - i.discountAmount))
+                                )
+                            ),
+                            new XElement("S_MOA",
+                                new XElement("C_C516",
+                                    new XElement("D_5025", "124"),
+                                    new XElement("D_5004", data.invoiceItems.Where(item => item.vatPercent == (decimal)9.5).Sum(i => i.vatAmount))
+                                )
+                            )
+                        ) : null,
+                        data.invoiceItems.Where(item => item.vatPercent == 0).Count() > 0 ?
+                        new XElement("G_SG52",
+                            new XElement("S_TAX",
+                                new XElement("D_5283", "7"),
+                                new XElement("C_C241",
+                                    new XElement("D_5153", "VAT")
+                                ),
+                                new XElement("C_C243",
+                                    new XElement("D_5278", 0)
+                                ),
+                                new XElement("D_5305", "S")  //INVOICE VAT CATEGORY
+                            ),
+                            new XElement("S_MOA",
+                                new XElement("C_C516",
+                                    new XElement("D_5025", "125"),
+                                    new XElement("D_5004", data.invoiceItems.Where(item => item.vatPercent == 0).Sum(i => i.price * i.quantity - i.discountAmount))
+                                )
+                            ),
+                            new XElement("S_MOA",
+                                new XElement("C_C516",
+                                    new XElement("D_5025", "124"),
+                                    new XElement("D_5004", data.invoiceItems.Where(item => item.vatPercent == 0).Sum(i => i.vatAmount))
+                                )
+                            )
+                        ) : null
                     ))
             );
 

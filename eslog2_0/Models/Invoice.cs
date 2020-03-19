@@ -15,10 +15,10 @@ namespace eslog2_0.Models
         public DateTime dueDate { get; set; }
         public DateTime serviceDate { get; set; }
         public string currency { get; set; }
-        public decimal totalAmount { get; set; }
-        public decimal vatPercentage { get; set; }
-        public decimal vatAmount { get; set; }
-        public decimal discountAmount { get; set; }
+        public decimal? totalAmount { get; set; }
+        public decimal? vatPercentage { get; set; }
+        public decimal? vatAmount { get; set; }
+        public decimal? discountAmount { get; set; }
         public decimal paymentAmount { get; set; }
 
     }
