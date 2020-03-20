@@ -21,5 +21,7 @@ namespace eslog2_0.Models
         public decimal? discountAmount { get; set; }
         public decimal paymentAmount { get; set; }
 
+
+
     }
 }
